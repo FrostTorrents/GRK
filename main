@@ -1,0 +1,167 @@
+
+import org.dreambot.api.methods.Calculations;
+import org.dreambot.api.methods.container.impl.equipment.EquipmentSlot;
+import org.dreambot.api.methods.map.Area;
+import org.dreambot.api.methods.skills.Skill;
+import org.dreambot.api.script.AbstractScript;
+import org.dreambot.api.script.Category;
+import org.dreambot.api.script.ScriptManifest;
+import org.dreambot.api.utilities.Timer;
+import org.dreambot.api.wrappers.interactive.GameObject;
+import org.dreambot.api.wrappers.interactive.NPC;
+
+import java.awt.*;
+import java.util.Random;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+
+@ScriptManifest(
+        author = "Rias Gremory",
+        description = "undescribed",
+        category = Category.COMBAT,
+        version = 1.0,
+        name = "Giant Rat Killer"
+)
+public class main extends AbstractScript {
+	public static final int SWORD = 1277;
+    public static final int SHIELD = 1171;
+	
+
+    
+    // Lumby Bank Area
+    Area bankArea = new Area(0,0,0,0,0);//unfinished
+    Area combatarea = new Area(3195,3204,3192,3206,0);
+
+    // Delay method to randomize actions
+    public int getDelay(int min, int max){
+        return (int)(Math.random() * (max - min) + 1) + min;
+    }
+
+    //npc attack
+    public void attackrat(String npcName){
+    	 if (!combatarea.contains(getLocalPlayer())) {
+             go(combatarea);
+         } else if (!getLocalPlayer().isInCombat()){
+    	NPC Giant_Rat = getNpcs().closest(npc -> npc != null && npc.getName().equals("Giant rat") && npc.hasAction("Attack"));
+        if(Giant_Rat != null)
+        	Giant_Rat.interact("Attack");
+        sleepUntil(() -> getLocalPlayer().isInCombat(), 6000);
+    }
+       }
+
+    // no reason for banking at this location, coded it for future combat script
+    public void goToBank(){
+        NPC banker = getNpcs().closest(npc -> npc != null && npc.hasAction("Bank"));
+        if(banker.interact("Bank")){
+            if(sleepUntil(() -> getBank().isOpen(), getDelay(8000, 12000))){
+                if(getBank().depositAllExcept(item -> item != null && item.getName().contains("axe"))){
+                    if(sleepUntil(() -> !getInventory().isFull(), getDelay(8000,12000))){
+                        if(getBank().close()){
+                            sleepUntil(() -> !getBank().isOpen(), getDelay(8000,12000));
+
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @Override
+    public void onStart(){
+        log("Starting Rat Killer");
+    }
+
+    @Override
+    public int onLoop(){
+    	
+    	 // Kitty says kill dem rats
+        if(!getInventory().isFull()){
+            if(combatarea.contains(getLocalPlayer()) && !getLocalPlayer().isAnimating()) {
+            	attackrat("Giant Rat");
+            } else {
+                if(getWalking().walk(combatarea.getCenter())){
+                    sleep(getDelay(3000, 6000));
+                }
+            }} else {
+                	
+    }  {
+    	if (getEquipment().isSlotEmpty(EquipmentSlot.WEAPON.getSlot())) {
+            getSword();
+        
+        } 
+    	 if (getEquipment().isSlotEmpty(EquipmentSlot.SHIELD.getSlot())) {
+         	getShield();
+    	 }
+    
+}
+    {
+    }
+	return 0;
+    }
+    
+      
+    private void getSword() {
+        if (getEquipment().isSlotEmpty(EquipmentSlot.WEAPON.getSlot())) {
+            if (getInventory().contains(SWORD)) {
+            	
+                getInventory().interact(SWORD,"Wield");
+            } else {
+                if (getDialogues().canContinue()) {
+                    if (getDialogues().continueDialogue()) {
+                        sleepUntil(() -> !getDialogues().canContinue(), 3000);
+                    }
+                } 
+                    }
+                }
+            }
+    private void getShield() {
+        if (getEquipment().isSlotEmpty(EquipmentSlot.WEAPON.getSlot())) {
+            if (getInventory().contains(SHIELD)) {
+            	
+                getInventory().interact(SHIELD,"Wield");
+            } else {
+                if (getDialogues().canContinue()) {
+                    if (getDialogues().continueDialogue()) {
+                        sleepUntil(() -> !getDialogues().canContinue(), 3000);
+                    }
+                } 
+                    }
+                }
+            }
+        // go to combat area
+        public int go(Area area) {
+            if (!area.contains(getLocalPlayer())) {
+                getWalking().walk(area.getRandomTile());
+            }
+        
+
+        // no reason for banking at this location, coded it for future combat script
+        if(getInventory().isFull()){
+            if(bankArea.contains(getLocalPlayer())){
+                goToBank();
+            } else {
+                if (getWalking().walk(bankArea.getCenter())) {
+                    sleep(getDelay(3000, 6000));
+                }
+            }
+        }
+
+        return getDelay(500, 1000);
+    }
+
+    @Override
+    public void onExit(){
+
+    }
+
+    //paint function for future update
+    @Override
+    public void onPaint(final Graphics g) {
+        long start = 0;
+        g.drawString("Attack level (gained): " + getSkills().getRealLevel(Skill.ATTACK) + " (" + getSkillTracker().getGainedLevels(Skill.ATTACK) + ")", 15, 60);
+        g.drawString("Strength level (gained): " + getSkills().getRealLevel(Skill.STRENGTH) + " (" + getSkillTracker().getGainedLevels(Skill.STRENGTH) + ")", 15, 90);
+        g.drawString("Defence level (gained): " + getSkills().getRealLevel(Skill.DEFENCE) + " (" + getSkillTracker().getGainedLevels(Skill.DEFENCE) + ")", 15, 120);
+        g.drawString("Hitpoints level (gained): " + getSkills().getRealLevel(Skill.HITPOINTS) + " (" + getSkillTracker().getGainedLevels(Skill.HITPOINTS) + ")", 15, 150);
+        g.drawString("Range level (gained): " + getSkills().getRealLevel(Skill.RANGED) + " (" + getSkillTracker().getGainedLevels(Skill.RANGED) + ")", 15, 180);
+    }
+}
