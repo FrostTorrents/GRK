@@ -54,7 +54,7 @@ public class main extends AbstractScript {
         NPC banker = getNpcs().closest(npc -> npc != null && npc.hasAction("Bank"));
         if(banker.interact("Bank")){
             if(sleepUntil(() -> getBank().isOpen(), getDelay(8000, 12000))){
-                if(getBank().depositAllExcept(item -> item != null && item.getName().contains("axe"))){
+                if(getBank().depositAllExcept(item -> item != null && item.getName().contains("item"))){
                     if(sleepUntil(() -> !getInventory().isFull(), getDelay(8000,12000))){
                         if(getBank().close()){
                             sleepUntil(() -> !getBank().isOpen(), getDelay(8000,12000));
